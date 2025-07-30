@@ -19,7 +19,6 @@ def show_all_profile():
     return repo
 
 
-#get user/{id}
 @user_router.get("/{name}")
 def show_profile(name: str):
     for person in repo:

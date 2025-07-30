@@ -2,7 +2,6 @@ from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 
 
-
 @dataclass
 class Profile:
     username: str
