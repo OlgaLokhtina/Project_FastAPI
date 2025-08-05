@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from uuid import UUID
-from dataclasses import dataclass
 
 
 class CreateProfileRequest(BaseModel):
@@ -22,6 +21,10 @@ class PatchProfileRequest(BaseModel):
     phone: str
 
 
-@dataclass
-class DeleteProfileRequest:
+class GetProfileResponse(BaseModel):
+    username: str
+    phone: str
+    lastname: str
+    firstname: str
+    surname: str
     id: UUID
