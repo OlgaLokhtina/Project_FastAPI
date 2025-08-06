@@ -12,7 +12,3 @@ repo = [
         surname="John",
     )
 ]
-
-
-
-
