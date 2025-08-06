@@ -10,3 +10,5 @@ class Profile:
     firstname: str
     surname: str
     id: UUID = field(default_factory=uuid4)
+
+g = 7
