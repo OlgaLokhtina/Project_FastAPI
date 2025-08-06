@@ -1,13 +1,15 @@
 from typing import List
+from uuid import UUID
+
 from fastapi import APIRouter, HTTPException
+
 from models.user import Profile
 from scheme.user import (
     CreateProfileRequest,
     CreateProfileResponse,
-    PatchProfileRequest,
     GetProfileResponse,
+    PatchProfileRequest,
 )
-from uuid import UUID
 from store.user_repo import repo
 
 user_router = APIRouter(prefix="/user")
@@ -67,3 +69,4 @@ def delete_profile(id: UUID):
     for person in repo:
         if person.id == id:
             repo.remove(person)
+    return None
