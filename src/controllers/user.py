@@ -18,14 +18,14 @@ user_router = APIRouter(prefix="/user")
 @user_router.post("/")
 def create_profile(data: CreateProfileRequest) -> CreateProfileResponse:
     profile = Profile(**data.model_dump())
-    repo.append(profile)
+    repo.save(profile)
     return CreateProfileResponse(id=profile.id)
 
 
 @user_router.get("/")
 def get_all_profile() -> List[GetProfileResponse]:
     profile_response = []
-    for user in repo:
+    for user in repo.repos:
         profile_response.append(
             GetProfileResponse(
                 username=user.username,
@@ -41,22 +41,22 @@ def get_all_profile() -> List[GetProfileResponse]:
 
 @user_router.get("/{id}")
 def get_profile(id: UUID) -> GetProfileResponse | None:
-    for person in repo:
-        if person.id == id:
-            return GetProfileResponse(
-                username=person.username,
-                phone=person.phone,
-                lastname=person.lastname,
-                firstname=person.firstname,
-                surname=person.surname,
-                id=person.id,
-            )
+    person = repo.get(id)
+    if person:
+        return GetProfileResponse(
+            username=person.username,
+            phone=person.phone,
+            lastname=person.lastname,
+            firstname=person.firstname,
+            surname=person.surname,
+            id=person.id,
+        )
     raise HTTPException(status_code=404, detail=f"User with {id} not found")
 
 
 @user_router.patch("/{id}")
 def edit_profile(id: UUID, data: PatchProfileRequest) -> Profile | None:
-    for person in repo:
+    for person in repo.repos:
         if person.id == id:
             for k, v in data.model_dump().items():
                 setattr(person, k, v)
@@ -66,7 +66,4 @@ def edit_profile(id: UUID, data: PatchProfileRequest) -> Profile | None:
 
 @user_router.delete("/{id}")
 def delete_profile(id: UUID):
-    for person in repo:
-        if person.id == id:
-            repo.remove(person)
-    return None
+    repo.delete(id)
