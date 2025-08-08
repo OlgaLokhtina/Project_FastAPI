@@ -40,8 +40,8 @@ def get_all_profile() -> List[GetProfileResponse]:
 
 
 @user_router.get("/{id}")
-def get_profile(id: UUID) -> GetProfileResponse | None:
-    person = repo.get(id)
+def get_profile(profile_id: UUID) -> GetProfileResponse | None:
+    person = repo.get(profile_id)
     if person:
         return GetProfileResponse(
             username=person.username,
@@ -51,19 +51,26 @@ def get_profile(id: UUID) -> GetProfileResponse | None:
             surname=person.surname,
             id=person.id,
         )
-    raise HTTPException(status_code=404, detail=f"User with {id} not found")
+    raise HTTPException(status_code=404, detail=f"User with {profile_id} not found")
 
 
-@user_router.patch("/{id}")
-def edit_profile(id: UUID, data: PatchProfileRequest) -> Profile | None:
+@user_router.patch("/{profile_id}")
+def edit_profile(profile_id: UUID, data: PatchProfileRequest) -> Profile | None:
+    add_person = None
     for person in repo.repos:
-        if person.id == id:
-            for k, v in data.model_dump().items():
-                setattr(person, k, v)
+        if person.id == profile_id:
+            add_person = person
+            for k, v in data.model_dump(exclude_unset=True).items():
+                setattr(add_person, k, v)
+            repo.save(add_person)
             return person
-    return None
+    if not add_person:
+        raise HTTPException(status_code=404, detail=f"User with {profile_id} not found")
 
 
-@user_router.delete("/{id}")
-def delete_profile(id: UUID):
-    repo.delete(id)
+@user_router.delete("/{profile_id}")
+def delete_profile(profile_id: UUID):
+    if repo.delete(profile_id):
+        return f"User with {profile_id} was deleted"
+    else:
+        raise HTTPException(status_code=404, detail=f"User with {profile_id} not found")

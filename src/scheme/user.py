@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from uuid import UUID
+
+from pydantic import BaseModel
 
 
 class CreateProfileRequest(BaseModel):
@@ -15,10 +16,10 @@ class CreateProfileResponse(BaseModel):
 
 
 class PatchProfileRequest(BaseModel):
-    lastname: str
-    firstname: str
-    surname: str
-    phone: str
+    lastname: str = None
+    firstname: str = None
+    surname: str = None
+    phone: str = None
 
 
 class GetProfileResponse(BaseModel):
