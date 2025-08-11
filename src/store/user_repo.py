@@ -6,15 +6,19 @@ from models.user import Profile
 
 class BaseUserRepository(ABC):
     @abstractmethod
-    def get(self, profile_id: UUID):
+    def get(self, profile_id: UUID) -> Profile | None:
         pass
 
     @abstractmethod
-    def save(self, profile: Profile):
+    def list(self) -> list:
         pass
 
     @abstractmethod
-    def delete(self, profile_id: UUID):
+    def save(self, profile: Profile) -> None:
+        pass
+
+    @abstractmethod
+    def delete(self, profile_id: UUID) -> UUID | None:
         pass
 
 
@@ -27,8 +31,12 @@ class UserRepository(BaseUserRepository):
             if profile_id == rep.id:
                 return rep
 
+    def list(self) -> list:
+        return self.repos
+
     def save(self, profile: Profile):
-        if profile in self.repos:
+        person = repo.get(profile.id)
+        if person:
             self.repos = [profile if p.id == profile.id else p for p in self.repos]
         else:
             self.repos.append(profile)

@@ -24,48 +24,45 @@ def create_profile(data: CreateProfileRequest) -> CreateProfileResponse:
 
 @user_router.get("/")
 def get_all_profile() -> List[GetProfileResponse]:
-    profile_response = []
-    for user in repo.repos:
-        profile_response.append(
-            GetProfileResponse(
-                username=user.username,
-                phone=user.phone,
-                lastname=user.lastname,
-                firstname=user.firstname,
-                surname=user.surname,
-                id=user.id,
-            )
+    profiles = repo.list()
+    profile_resp = [
+        GetProfileResponse(
+            username=user.username,
+            phone=user.phone,
+            lastname=user.lastname,
+            firstname=user.firstname,
+            surname=user.surname,
+            id=user.id,
         )
-    return profile_response
+        for user in profiles
+    ]
+    return profile_resp
 
 
-@user_router.get("/{id}")
+@user_router.get("/{profile_id}")
 def get_profile(profile_id: UUID) -> GetProfileResponse | None:
-    person = repo.get(profile_id)
-    if person:
+    profile = repo.get(profile_id)
+    if profile:
         return GetProfileResponse(
-            username=person.username,
-            phone=person.phone,
-            lastname=person.lastname,
-            firstname=person.firstname,
-            surname=person.surname,
-            id=person.id,
+            username=profile.username,
+            phone=profile.phone,
+            lastname=profile.lastname,
+            firstname=profile.firstname,
+            surname=profile.surname,
+            id=profile.id,
         )
     raise HTTPException(status_code=404, detail=f"User with {profile_id} not found")
 
 
 @user_router.patch("/{profile_id}")
-def edit_profile(profile_id: UUID, data: PatchProfileRequest) -> Profile | None:
-    add_person = None
-    for person in repo.repos:
-        if person.id == profile_id:
-            add_person = person
-            for k, v in data.model_dump(exclude_unset=True).items():
-                setattr(add_person, k, v)
-            repo.save(add_person)
-            return person
-    if not add_person:
+def edit_profile(profile_id: UUID, data: PatchProfileRequest):
+    profile = repo.get(profile_id)
+    if not profile:
         raise HTTPException(status_code=404, detail=f"User with {profile_id} not found")
+    for k, v in data.model_dump(exclude_unset=True).items():
+        setattr(profile, k, v)
+    repo.save(profile)
+    return profile
 
 
 @user_router.delete("/{profile_id}")
