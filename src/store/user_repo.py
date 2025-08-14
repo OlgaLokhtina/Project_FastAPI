@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Iterable
 from uuid import UUID
 
 from models.user import Profile
@@ -10,7 +11,7 @@ class BaseUserRepository(ABC):
         pass
 
     @abstractmethod
-    def list(self) -> list:
+    def list(self) -> Iterable[Profile]:
         pass
 
     @abstractmethod
@@ -31,7 +32,7 @@ class UserRepository(BaseUserRepository):
             if profile_id == rep.id:
                 return rep
 
-    def list(self) -> list:
+    def list(self) -> Iterable[Profile]:
         return self.repos
 
     def save(self, profile: Profile):
