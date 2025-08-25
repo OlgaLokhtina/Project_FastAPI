@@ -1,26 +1,8 @@
-from abc import ABC, abstractmethod
 from typing import Iterable
 from uuid import UUID
 
 from models.user import Profile
-
-
-class BaseUserRepository(ABC):
-    @abstractmethod
-    def get(self, profile_id: UUID) -> Profile | None:
-        pass
-
-    @abstractmethod
-    def list(self) -> Iterable[Profile]:
-        pass
-
-    @abstractmethod
-    def save(self, profile: Profile) -> None:
-        pass
-
-    @abstractmethod
-    def delete(self, profile_id: UUID) -> UUID | None:
-        pass
+from store.base import BaseUserRepository
 
 
 class UserRepository(BaseUserRepository):

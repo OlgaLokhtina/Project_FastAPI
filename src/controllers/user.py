@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from models.user import Profile
 from scheme.user import (
@@ -10,6 +10,7 @@ from scheme.user import (
     GetProfileResponse,
     PatchProfileRequest,
 )
+from store.base import UserNotFound
 from store.user_repo import repo
 
 user_router = APIRouter(prefix="/user")
@@ -51,14 +52,15 @@ def get_profile(profile_id: UUID) -> GetProfileResponse | None:
             surname=profile.surname,
             id=profile.id,
         )
-    raise HTTPException(status_code=404, detail=f"User with {profile_id} not found")
+    else:
+        raise UserNotFound(profile_id)
 
 
 @user_router.patch("/{profile_id}")
 def edit_profile(profile_id: UUID, data: PatchProfileRequest):
     profile = repo.get(profile_id)
     if not profile:
-        raise HTTPException(status_code=404, detail=f"User with {profile_id} not found")
+        raise UserNotFound(profile_id)
     for k, v in data.model_dump(exclude_unset=True).items():
         setattr(profile, k, v)
     repo.save(profile)
@@ -67,7 +69,8 @@ def edit_profile(profile_id: UUID, data: PatchProfileRequest):
 
 @user_router.delete("/{profile_id}")
 def delete_profile(profile_id: UUID):
-    if repo.delete(profile_id):
-        return f"User with {profile_id} was deleted"
+    prof_id = repo.delete(profile_id)
+    if prof_id:
+        return prof_id
     else:
-        raise HTTPException(status_code=404, detail=f"User with {profile_id} not found")
+        raise UserNotFound(profile_id)

@@ -1,9 +1,10 @@
-from dataclasses import dataclass, field
+from dataclasses import field
 from uuid import UUID, uuid4
 
+from pydantic import BaseModel
 
-@dataclass
-class Profile:
+
+class Profile(BaseModel):
     username: str = None
     phone: str = None
     lastname: str = None
