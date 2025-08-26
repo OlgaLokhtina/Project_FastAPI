@@ -18,7 +18,7 @@ class UserRepository(BaseUserRepository):
     def list(self) -> Iterable[Profile]:
         return self.repos
 
-    def save(self, profile: Profile):
+    def save(self, profile: Profile) -> None:
         try:
             repo.get(profile.id)
             self.repos = [profile if p.id == profile.id else p for p in self.repos]

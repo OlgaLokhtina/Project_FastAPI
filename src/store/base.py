@@ -7,7 +7,7 @@ from models.user import Profile
 
 class BaseUserRepository(ABC):
     @abstractmethod
-    def get(self, profile_id: UUID) -> Profile | None:
+    def get(self, profile_id: UUID) -> Profile:
         pass
 
     @abstractmethod
@@ -19,7 +19,7 @@ class BaseUserRepository(ABC):
         pass
 
     @abstractmethod
-    def delete(self, profile_id: UUID) -> UUID | None:
+    def delete(self, profile_id: UUID) -> None:
         pass
 
 
