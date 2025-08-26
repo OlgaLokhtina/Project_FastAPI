@@ -10,7 +10,6 @@ from scheme.user import (
     GetProfileResponse,
     PatchProfileRequest,
 )
-from store.base import UserNotFound
 from store.user_repo import repo
 
 user_router = APIRouter(prefix="/user")
@@ -43,24 +42,19 @@ def get_all_profile() -> List[GetProfileResponse]:
 @user_router.get("/{profile_id}")
 def get_profile(profile_id: UUID) -> GetProfileResponse | None:
     profile = repo.get(profile_id)
-    if profile:
-        return GetProfileResponse(
-            username=profile.username,
-            phone=profile.phone,
-            lastname=profile.lastname,
-            firstname=profile.firstname,
-            surname=profile.surname,
-            id=profile.id,
-        )
-    else:
-        raise UserNotFound(profile_id)
+    return GetProfileResponse(
+        username=profile.username,
+        phone=profile.phone,
+        lastname=profile.lastname,
+        firstname=profile.firstname,
+        surname=profile.surname,
+        id=profile.id,
+    )
 
 
 @user_router.patch("/{profile_id}")
 def edit_profile(profile_id: UUID, data: PatchProfileRequest):
     profile = repo.get(profile_id)
-    if not profile:
-        raise UserNotFound(profile_id)
     for k, v in data.model_dump(exclude_unset=True).items():
         setattr(profile, k, v)
     repo.save(profile)
@@ -69,8 +63,4 @@ def edit_profile(profile_id: UUID, data: PatchProfileRequest):
 
 @user_router.delete("/{profile_id}")
 def delete_profile(profile_id: UUID):
-    prof_id = repo.delete(profile_id)
-    if prof_id:
-        return prof_id
-    else:
-        raise UserNotFound(profile_id)
+    repo.delete(profile_id)
