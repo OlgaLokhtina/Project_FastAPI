@@ -38,7 +38,7 @@ repo.save(
     Profile(
         id=UUID("f3082ffd-474f-4dcb-8777-3141ad1b463c"),
         username="Katty",
-        phone="45678",
+        phone="+45678987654",
         lastname="Smith",
         firstname="Katerine",
         surname="John",

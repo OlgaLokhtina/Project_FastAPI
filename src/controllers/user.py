@@ -2,8 +2,9 @@ from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter
+from pydantic import ValidationError
 
-from models.user import Profile
+from models.user import Profile, UserValidationError
 from scheme.user import (
     CreateProfileRequest,
     CreateProfileResponse,
@@ -16,8 +17,13 @@ user_router = APIRouter(prefix="/user")
 
 
 @user_router.post("/")
-def create_profile(data: CreateProfileRequest) -> CreateProfileResponse:
-    profile = Profile(**data.model_dump())
+def create_profile(data: CreateProfileRequest) -> CreateProfileResponse | str:
+    try:
+        profile = Profile(**data.model_dump())
+    except ValidationError:
+        return "Ooooo!"
+    except UserValidationError as e:
+        return str(e)
     repo.save(profile)
     return CreateProfileResponse(id=profile.id)
 
