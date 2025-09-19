@@ -16,7 +16,7 @@ user_router = APIRouter(prefix="/user")
 
 
 @user_router.post("/")
-def create_profile(data: CreateProfileRequest) -> CreateProfileResponse | str:
+def create_profile(data: CreateProfileRequest) -> CreateProfileResponse:
     profile = Profile(**data.model_dump())
     repo.save(profile)
     return CreateProfileResponse(id=profile.id)
@@ -40,7 +40,7 @@ def get_all_profile() -> List[GetProfileResponse]:
 
 
 @user_router.get("/{profile_id}")
-def get_profile(profile_id: UUID) -> GetProfileResponse | None:
+def get_profile(profile_id: UUID) -> GetProfileResponse:
     profile = repo.get(profile_id)
     return GetProfileResponse(
         username=profile.username,
@@ -53,14 +53,13 @@ def get_profile(profile_id: UUID) -> GetProfileResponse | None:
 
 
 @user_router.patch("/{profile_id}")
-def edit_profile(profile_id: UUID, data: PatchProfileRequest):
+def edit_profile(profile_id: UUID, data: PatchProfileRequest) -> None:
     profile = repo.get(profile_id)
     for k, v in data.model_dump(exclude_unset=True).items():
         setattr(profile, k, v)
     repo.save(profile)
-    return profile
 
 
 @user_router.delete("/{profile_id}")
-def delete_profile(profile_id: UUID):
+def delete_profile(profile_id: UUID) -> None:
     repo.delete(profile_id)
