@@ -44,3 +44,13 @@ repo.save(
         surname="John",
     )
 )
+repo.save(
+    Profile(
+        id=UUID("95362ffd-474f-4dcb-8777-3141ad1b463c"),
+        username="Shon",
+        phone="+45678987654",
+        lastname="Smith",
+        firstname="Katerine",
+        surname="John",
+    )
+)

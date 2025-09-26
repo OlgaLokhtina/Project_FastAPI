@@ -3,63 +3,42 @@ from uuid import UUID
 
 from fastapi import APIRouter
 
-from models.user import Profile
 from scheme.user import (
     CreateProfileRequest,
     CreateProfileResponse,
     GetProfileResponse,
     PatchProfileRequest,
 )
-from store.user_repo import repo
+from usecases.user_usecase import UserUsecase
 
 user_router = APIRouter(prefix="/user")
 
 
 @user_router.post("/")
 def create_profile(data: CreateProfileRequest) -> CreateProfileResponse:
-    profile = Profile(**data.model_dump())
-    repo.save(profile)
-    return CreateProfileResponse(id=profile.id)
+    usecase = UserUsecase()
+    return usecase.create(data)
 
 
 @user_router.get("/")
-def get_all_profile() -> List[GetProfileResponse]:
-    profiles = repo.list()
-    profile_resp = [
-        GetProfileResponse(
-            username=user.username,
-            phone=user.phone,
-            lastname=user.lastname,
-            firstname=user.firstname,
-            surname=user.surname,
-            id=user.id,
-        )
-        for user in profiles
-    ]
-    return profile_resp
+def get_all_profile(page: int, size: int) -> List[GetProfileResponse]:
+    usecase = UserUsecase()
+    return usecase.list(page, size)
 
 
 @user_router.get("/{profile_id}")
 def get_profile(profile_id: UUID) -> GetProfileResponse:
-    profile = repo.get(profile_id)
-    return GetProfileResponse(
-        username=profile.username,
-        phone=profile.phone,
-        lastname=profile.lastname,
-        firstname=profile.firstname,
-        surname=profile.surname,
-        id=profile.id,
-    )
+    usecase = UserUsecase()
+    return usecase.get(profile_id)
 
 
 @user_router.patch("/{profile_id}")
 def edit_profile(profile_id: UUID, data: PatchProfileRequest) -> None:
-    profile = repo.get(profile_id)
-    for k, v in data.model_dump(exclude_unset=True).items():
-        setattr(profile, k, v)
-    repo.save(profile)
+    usecase = UserUsecase()
+    usecase.update(profile_id, data)
 
 
 @user_router.delete("/{profile_id}")
 def delete_profile(profile_id: UUID) -> None:
-    repo.delete(profile_id)
+    usecase = UserUsecase()
+    usecase.delete()
