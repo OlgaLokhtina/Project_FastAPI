@@ -8,13 +8,12 @@ from scheme.user import (
     GetProfileResponse,
     PatchProfileRequest,
 )
-from store.user_repo import repo
 from usecases.base import BaseUserUsecase
 
 
 class UserUsecase(BaseUserUsecase):
     def get(self, profile_id: UUID) -> GetProfileResponse:
-        profile = repo.get(profile_id)
+        profile = self.repo.get(profile_id)
         return GetProfileResponse(
             username=profile.username,
             phone=profile.phone,
@@ -25,7 +24,7 @@ class UserUsecase(BaseUserUsecase):
         )
 
     def list(self, page: int, size: int) -> List[GetProfileResponse]:
-        profiles = repo.list()
+        profiles = self.repo.list()
         profile_resp = [
             GetProfileResponse(
                 username=user.username,
@@ -43,14 +42,14 @@ class UserUsecase(BaseUserUsecase):
 
     def create(self, data: CreateProfileRequest) -> CreateProfileResponse:
         profile = Profile(**data.model_dump())
-        repo.save(profile)
+        self.repo.save(profile)
         return CreateProfileResponse(id=profile.id)
 
     def update(self, profile_id: UUID, data: PatchProfileRequest) -> None:
-        profile = repo.get(profile_id)
+        profile = self.repo.get(profile_id)
         for k, v in data.model_dump(exclude_unset=True).items():
             setattr(profile, k, v)
-        repo.save(profile)
+        self.repo.save(profile)
 
     def delete(self, profile_id: UUID) -> None:
-        repo.delete(profile_id)
+        self.repo.delete(profile_id)

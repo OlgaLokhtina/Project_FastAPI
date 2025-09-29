@@ -11,6 +11,9 @@ from scheme.user import (
 
 
 class BaseUserUsecase(ABC):
+    def __init__(self, repo):
+        self.repo = repo
+
     @abstractmethod
     def get(self, profile_id: UUID) -> GetProfileResponse:
         pass
