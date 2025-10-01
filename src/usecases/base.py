@@ -8,10 +8,11 @@ from scheme.user import (
     GetProfileResponse,
     PatchProfileRequest,
 )
+from store.base import BaseUserRepository
 
 
 class BaseUserUsecase(ABC):
-    def __init__(self, repo):
+    def __init__(self, repo: BaseUserRepository):
         self.repo = repo
 
     @abstractmethod
