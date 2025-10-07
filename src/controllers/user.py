@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -9,48 +9,49 @@ from scheme.user import (
     GetProfileResponse,
     PatchProfileRequest,
 )
-from store.user_repo import repo
+from store.sql_user_repo import sql_repo
 from usecases.user_usecase import UserUsecase
 
 user_router = APIRouter(prefix="/user")
 
 
-def common_parameters(profile_id: UUID | None = None, usecase=UserUsecase(repo)):
-    return {"profile_id": profile_id, "usecase": usecase}
-
-
-CommonsDep = Annotated[dict, Depends(common_parameters)]
+def common_parameters() -> UserUsecase:
+    repos = sql_repo
+    return UserUsecase(repos)
 
 
 @user_router.post("/")
 def create_profile(
-    commons: CommonsDep, data: CreateProfileRequest
+    data: CreateProfileRequest, usecase: UserUsecase = Depends(common_parameters)
 ) -> CreateProfileResponse:
-    usecase = commons["usecase"]
     return usecase.create(data)
 
 
 @user_router.get("/")
 def get_all_profile(
-    page: int, size: int, commons: CommonsDep
+    page: int, size: int, usecase: UserUsecase = Depends(common_parameters)
 ) -> List[GetProfileResponse]:
-    usecase = commons["usecase"]
     return usecase.list(page, size)
 
 
 @user_router.get("/{profile_id}")
-def get_profile(commons: CommonsDep) -> GetProfileResponse:
-    usecase = commons["usecase"]
-    return usecase.get(commons["profile_id"])
+def get_profile(
+    profile_id: UUID, usecase: UserUsecase = Depends(common_parameters)
+) -> GetProfileResponse:
+    return usecase.get(profile_id)
 
 
 @user_router.patch("/{profile_id}")
-def edit_profile(data: PatchProfileRequest, commons: CommonsDep) -> None:
-    usecase = commons["usecase"]
-    usecase.update(commons["profile_id"], data)
+def edit_profile(
+    profile_id: UUID,
+    data: PatchProfileRequest,
+    usecase: UserUsecase = Depends(common_parameters),
+) -> None:
+    usecase.update(profile_id, data)
 
 
 @user_router.delete("/{profile_id}")
-def delete_profile(commons: CommonsDep) -> None:
-    usecase = commons["usecase"]
-    usecase.delete(commons["profile_id"])
+def delete_profile(
+    profile_id: UUID, usecase: UserUsecase = Depends(common_parameters)
+) -> None:
+    usecase.delete(profile_id)

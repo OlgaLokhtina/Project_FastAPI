@@ -5,7 +5,7 @@ from models.user import Profile
 from store.base import BaseUserRepository, UserNotFound
 
 
-class UserRepository(BaseUserRepository):
+class RAMUserRepository(BaseUserRepository):
     def __init__(self):
         self.repos: list[Profile] = []
 
@@ -33,7 +33,7 @@ class UserRepository(BaseUserRepository):
         raise UserNotFound(profile_id)
 
 
-repo = UserRepository()
+repo = RAMUserRepository()
 repo.save(
     Profile(
         id=UUID("f3082ffd-474f-4dcb-8777-3141ad1b463c"),
