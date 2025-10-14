@@ -9,15 +9,15 @@ from scheme.user import (
     GetProfileResponse,
     PatchProfileRequest,
 )
-from store.sql_user_repo import sql_repo
+from store.sql_user_repo import SQLiteUserRepository
 from usecases.user_usecase import UserUsecase
 
 user_router = APIRouter(prefix="/user")
 
 
 def common_parameters() -> UserUsecase:
-    repos = sql_repo
-    return UserUsecase(repos)
+    sql_repo = SQLiteUserRepository("sql_users.db")
+    return UserUsecase(sql_repo)
 
 
 @user_router.post("/")

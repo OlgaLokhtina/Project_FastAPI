@@ -7,6 +7,10 @@ from models.user import Profile
 
 class BaseUserRepository(ABC):
     @abstractmethod
+    def exist(self, profile_id: UUID) -> bool:
+        pass
+
+    @abstractmethod
     def get(self, profile_id: UUID) -> Profile:
         pass
 
