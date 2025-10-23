@@ -1,4 +1,5 @@
 import sqlite3
+import uuid
 from uuid import UUID
 
 import pytest
@@ -39,18 +40,6 @@ def user():
     con.commit()
 
 
-@pytest.fixture
-def user2():
-    return Profile(
-        id=UUID("95362ffd-474f-4dcb-8777-3141ad1b4637"),
-        username="Mary",
-        phone="+45777777777",
-        lastname="Smith",
-        firstname="Marianna",
-        surname="Mark",
-    )
-
-
 @pytest.fixture()
 def repo():
     con = sqlite3.connect(DB_NAME)
@@ -87,9 +76,17 @@ def test_list_repo(repo: SQLiteUserRepository, user: Profile):
     assert len(list_per) == 1
 
 
-def test_save_repo(repo: SQLiteUserRepository, user2: Profile):
+def test_save_repo(repo: SQLiteUserRepository):
+    user2 = Profile(
+        id=uuid.uuid4(),
+        username="Ann",
+        phone="+45432543456",
+        lastname="Bart",
+        firstname="Anastasia",
+        surname="Bob",
+    )
     repo.save(user2)
-    con = sqlite3.connect("sql.db")
+    con = sqlite3.connect(DB_NAME)
     cur = con.cursor()
     cur.execute("SELECT * FROM Users WHERE id = ?", (str(user2.id),))
     person = cur.fetchone()
@@ -106,23 +103,10 @@ def test_save_repo(repo: SQLiteUserRepository, user2: Profile):
     con.commit()
 
 
-def test_delete_repo(repo: SQLiteUserRepository, user2: Profile):
+def test_delete_repo(repo: SQLiteUserRepository, user: Profile):
     con = sqlite3.connect(DB_NAME)
     cur = con.cursor()
-    cur.execute(
-        "INSERT INTO Users (id, username, lastname, "
-        "firstname, surname, phone) VALUES (?, ?, ?, ?, ?, ?)",
-        (
-            str(user2.id),
-            user2.username,
-            user2.lastname,
-            user2.firstname,
-            user2.surname,
-            user2.phone,
-        ),
-    )
-    con.commit()
-    repo.delete(user2.id)
-    cur.execute("SELECT * FROM Users WHERE id = ?", (str(user2.id),))
+    repo.delete(user.id)
+    cur.execute("SELECT * FROM Users WHERE id = ?", (str(user.id),))
     person = cur.fetchone()
     assert person is None
