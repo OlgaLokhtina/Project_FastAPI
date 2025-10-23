@@ -1,4 +1,5 @@
 import sqlite3
+import uuid
 from uuid import UUID
 
 import pytest
@@ -39,18 +40,6 @@ def user():
     con.commit()
 
 
-@pytest.fixture
-def user2():
-    return Profile(
-        id=UUID("95362ffd-474f-4dcb-8777-3141ad1b4637"),
-        username="Mary",
-        phone="+45777777777",
-        lastname="Smith",
-        firstname="Marianna",
-        surname="Mark",
-    )
-
-
 @pytest.fixture()
 def repo():
     con = sqlite3.connect(DB_NAME)
@@ -87,11 +76,19 @@ def test_list_repo(repo: SQLiteUserRepository, user: Profile):
     assert len(list_per) == 1
 
 
-def test_save_repo(repo: SQLiteUserRepository, user2: Profile):
-    repo.save(user2)
-    con = sqlite3.connect("sql.db")
+def test_save_repo(repo: SQLiteUserRepository):
+    user = Profile(
+        id=uuid.uuid4(),
+        username="Ann",
+        phone="+45432543456",
+        lastname="Bart",
+        firstname="Anastasia",
+        surname="Bob",
+    )
+    repo.save(user)
+    con = sqlite3.connect(DB_NAME)
     cur = con.cursor()
-    cur.execute("SELECT * FROM Users WHERE id = ?", (str(user2.id),))
+    cur.execute("SELECT * FROM Users WHERE id = ?", (str(user.id),))
     person = cur.fetchone()
     user_dict = {
         "id": UUID(person[0]),
@@ -101,28 +98,15 @@ def test_save_repo(repo: SQLiteUserRepository, user2: Profile):
         "surname": str(person[4]),
         "phone": str(person[5]),
     }
-    assert user_dict == user2.model_dump()
-    cur.execute("DELETE FROM Users WHERE id = ?", (str(user2.id),))
+    assert user_dict == user.model_dump()
+    cur.execute("DELETE FROM Users WHERE id = ?", (str(user.id),))
     con.commit()
 
 
-def test_delete_repo(repo: SQLiteUserRepository, user2: Profile):
+def test_delete_repo(repo: SQLiteUserRepository, user: Profile):
     con = sqlite3.connect(DB_NAME)
     cur = con.cursor()
-    cur.execute(
-        "INSERT INTO Users (id, username, lastname, "
-        "firstname, surname, phone) VALUES (?, ?, ?, ?, ?, ?)",
-        (
-            str(user2.id),
-            user2.username,
-            user2.lastname,
-            user2.firstname,
-            user2.surname,
-            user2.phone,
-        ),
-    )
-    con.commit()
-    repo.delete(user2.id)
-    cur.execute("SELECT * FROM Users WHERE id = ?", (str(user2.id),))
+    repo.delete(user.id)
+    cur.execute("SELECT * FROM Users WHERE id = ?", (str(user.id),))
     person = cur.fetchone()
     assert person is None
