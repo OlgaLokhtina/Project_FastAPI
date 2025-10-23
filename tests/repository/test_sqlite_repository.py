@@ -77,7 +77,7 @@ def test_list_repo(repo: SQLiteUserRepository, user: Profile):
 
 
 def test_save_repo(repo: SQLiteUserRepository):
-    user2 = Profile(
+    user = Profile(
         id=uuid.uuid4(),
         username="Ann",
         phone="+45432543456",
@@ -85,10 +85,10 @@ def test_save_repo(repo: SQLiteUserRepository):
         firstname="Anastasia",
         surname="Bob",
     )
-    repo.save(user2)
+    repo.save(user)
     con = sqlite3.connect(DB_NAME)
     cur = con.cursor()
-    cur.execute("SELECT * FROM Users WHERE id = ?", (str(user2.id),))
+    cur.execute("SELECT * FROM Users WHERE id = ?", (str(user.id),))
     person = cur.fetchone()
     user_dict = {
         "id": UUID(person[0]),
@@ -98,8 +98,8 @@ def test_save_repo(repo: SQLiteUserRepository):
         "surname": str(person[4]),
         "phone": str(person[5]),
     }
-    assert user_dict == user2.model_dump()
-    cur.execute("DELETE FROM Users WHERE id = ?", (str(user2.id),))
+    assert user_dict == user.model_dump()
+    cur.execute("DELETE FROM Users WHERE id = ?", (str(user.id),))
     con.commit()
 
 
