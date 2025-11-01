@@ -17,7 +17,7 @@ pre-commit = "^4.2.0"
 uvicorn = "^0.35.0"
 
 [tool.ruff]
-extend-select = ["I"]
+lint.extend-select = ["I"]
 
 [build-system]
 requires = ["poetry-core"]

@@ -14,14 +14,15 @@ from usecases.base import BaseUserUsecase
 class UserUsecase(BaseUserUsecase):
     def get(self, profile_id: UUID) -> GetProfileResponse:
         profile = self.repo.get(profile_id)
-        return GetProfileResponse(
-            username=profile.username,
-            phone=profile.phone,
-            lastname=profile.lastname,
-            firstname=profile.firstname,
-            surname=profile.surname,
-            id=profile.id,
-        )
+        return GetProfileResponse(**profile.model_dump())
+        #     (
+        #     username=profile.username,
+        #     phone=profile.phone,
+        #     lastname=profile.lastname,
+        #     firstname=profile.firstname,
+        #     surname=profile.surname,
+        #     id=profile.id,
+        # ))
 
     def list(self, page: int, size: int) -> List[GetProfileResponse]:
         profiles = self.repo.list()

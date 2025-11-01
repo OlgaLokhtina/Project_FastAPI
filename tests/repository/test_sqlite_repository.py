@@ -42,9 +42,8 @@ def user():
 
 @pytest.fixture()
 def repo():
-    con = sqlite3.connect(DB_NAME)
-    cur = con.cursor()
-    with con:
+    with sqlite3.connect(DB_NAME) as con:
+        cur = con.cursor()
         cur.execute("""
                     CREATE TABLE IF NOT EXISTS Users (
                         id TEXT NOT NULL,
@@ -55,7 +54,6 @@ def repo():
                         phone TEXT
                     )
                 """)
-    con.close()
 
     rep = SQLiteUserRepository(DB_NAME)
     return rep

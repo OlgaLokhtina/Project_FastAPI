@@ -53,6 +53,7 @@ class SQLiteUserRepository(BaseUserRepository):
         return list_pr
 
     def save(self, profile: Profile) -> None:
+        print("ooooo!")
         cursor = self.connection.cursor()
         ss = (profile.lastname, profile.firstname, profile.surname, profile.phone)
         if self.exist(profile.id):
